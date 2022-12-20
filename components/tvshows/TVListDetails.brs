@@ -5,6 +5,16 @@ sub init()
     m.overview = m.top.findNode("overview")
     m.poster = m.top.findNode("poster")
     m.deviceInfo = CreateObject("roDeviceInfo")
+    m.communityRating = m.top.findNode("communityRating")
+    m.star = m.top.findNode("star")
+    m.infoBar = m.top.findNode("infoBar")
+    m.ratingGroup = m.top.findNode("rating")
+    m.aired = m.top.findNode("aired")
+    m.runtime = m.top.findNode("runtime")
+    m.endtime = m.top.findNode("endtime")
+    m.audio_codec = m.top.findNode("audio_codec")
+    m.audio_codec_count = m.top.findnode("audio_codec_count")
+    m.video_codec = m.top.findNode("video_codec")
 end sub
 
 sub itemContentChanged()
@@ -21,7 +31,7 @@ sub itemContentChanged()
     if itemData.PremiereDate <> invalid
         airDate = CreateObject("roDateTime")
         airDate.FromISO8601String(itemData.PremiereDate)
-        m.top.findNode("aired").text = tr("Aired") + ": " + airDate.AsDateString("short-month-no-weekday")
+        m.aired.text = tr("Aired") + ": " + airDate.AsDateString("short-month-no-weekday")
     end if
 
     imageUrl = item.posterURL
@@ -39,22 +49,21 @@ sub itemContentChanged()
     if type(itemData.RunTimeTicks) = "roInt" or type(itemData.RunTimeTicks) = "LongInteger"
         runTime = getRuntime()
         if runTime < 2
-            m.top.findNode("runtime").text = "1 min"
+            m.runtime.text = "1 min"
         else
-            m.top.findNode("runtime").text = stri(runTime).trim() + " mins"
+            m.runtime.text = stri(runTime).trim() + " mins"
         end if
 
         if get_user_setting("ui.design.hideclock") <> "true"
-            m.top.findNode("endtime").text = tr("Ends at %1").Replace("%1", getEndTime())
+            m.endtime.text = tr("Ends at %1").Replace("%1", getEndTime())
         end if
     end if
 
     if itemData.communityRating <> invalid
-        m.top.findNode("star").visible = true
-        m.top.findNode("communityRating").text = str(int(itemData.communityRating * 10) / 10)
+        m.star.visible = true
+        m.communityRating.text = str(int(itemData.communityRating * 10) / 10)
     else
-
-        m.top.findnode("infoBar").removeChild(m.top.findnode("rating"))
+        m.infoBar.removeChild(m.ratingGroup)
     end if
 
     videoIdx = invalid
@@ -64,25 +73,25 @@ sub itemContentChanged()
         for i = 0 to itemData.MediaStreams.Count() - 1
             if itemData.MediaStreams[i].Type = "Video" and videoIdx = invalid
                 videoIdx = i
-                m.top.findNode("video_codec").text = tr("Video") + ": " + itemData.mediaStreams[videoIdx].DisplayTitle
+                m.video_codec.text = tr("Video") + ": " + itemData.mediaStreams[videoIdx].DisplayTitle
             else if itemData.MediaStreams[i].Type = "Audio" and audioIdx = invalid
                 if item.selectedAudioStreamIndex > 1
                     audioIdx = item.selectedAudioStreamIndex
                 else
                     audioIdx = i
                 end if
-                m.top.findNode("audio_codec").text = tr("Audio") + ": " + itemData.mediaStreams[audioIdx].DisplayTitle
+                m.audio_codec.text = tr("Audio") + ": " + itemData.mediaStreams[audioIdx].DisplayTitle
             end if
             if videoIdx <> invalid and audioIdx <> invalid then exit for
         end for
     end if
 
-    m.top.findNode("video_codec").visible = videoIdx <> invalid
+    m.video_codec.visible = videoIdx <> invalid
     if audioIdx <> invalid
-        m.top.findNode("audio_codec").visible = true
+        m.audio_codec.visible = true
         DisplayAudioAvailable(itemData.mediaStreams)
     else
-        m.top.findNode("audio_codec").visible = false
+        m.audio_codec.visible = false
     end if
 end sub
 
@@ -96,7 +105,7 @@ sub DisplayAudioAvailable(streams)
     end for
 
     if count > 1
-        m.top.findnode("audio_codec_count").text = "+" + stri(count - 1).trim()
+        m.audio_codec_count.text = "+" + stri(count - 1).trim()
     end if
 
 end sub
