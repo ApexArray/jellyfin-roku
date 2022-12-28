@@ -5,6 +5,12 @@ sub init()
     m.overview = m.top.findNode("overview")
     m.poster = m.top.findNode("poster")
     m.deviceInfo = CreateObject("roDeviceInfo")
+
+    m.rating = m.top.findnode("rating")
+    m.infoBar = m.top.findnode("infoBar")
+    m.progressBackground = m.top.findNode("progressBackground")
+    m.progressBar = m.top.findnode("progressBar")
+    m.playedIndicator = m.top.findNode("playedIndicator")
 end sub
 
 sub itemContentChanged()
@@ -49,12 +55,25 @@ sub itemContentChanged()
         end if
     end if
 
-    if itemData.communityRating <> invalid
+    if isValid(itemData.communityRating)
         m.top.findNode("star").visible = true
         m.top.findNode("communityRating").text = str(int(itemData.communityRating * 10) / 10)
     else
+        m.top.findNode("star").visible = false
+    end if
 
-        m.top.findnode("infoBar").removeChild(m.top.findnode("rating"))
+    ' Add checkmark in corner (if applicable)
+    if isValid(itemData?.UserData?.Played) and itemData.UserData.Played = true
+        m.playedIndicator.visible = true
+    end if
+
+    ' Add progress bar on bottom (if applicable)
+    if isValid(itemData?.UserData?.PlayedPercentage) and itemData?.UserData?.PlayedPercentage > 0
+        m.progressBackground.width = m.poster.width
+        m.progressBackground.visible = true
+        progressWidthInPixels = int(m.progressBackground.width * itemData.UserData.PlayedPercentage / 100)
+        m.progressBar.width = progressWidthInPixels
+        m.progressBar.visible = true
     end if
 
     videoIdx = invalid
