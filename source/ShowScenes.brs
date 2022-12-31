@@ -489,6 +489,14 @@ function CreateMovieLibraryView(libraryItem)
     return group
 end function
 
+function CreateMusicLibraryView(libraryItem)
+    group = CreateObject("roSGNode", "MusicLibraryView")
+    group.parentItem = libraryItem
+    group.optionsAvailable = true
+    group.observeField("selectedItem", m.port)
+    return group
+end function
+
 function CreateSearchPage()
     ' Search + Results Page
     group = CreateObject("roSGNode", "searchResults")
@@ -516,72 +524,6 @@ function CreateVideoPlayerGroup(video_id, mediaSourceId = invalid, audio_stream_
     video.observeField("state", m.port)
 
     return video
-end function
-
-' Play Audio
-function CreateAudioPlayerGroup(audiodata)
-
-    group = CreateObject("roSGNode", "NowPlaying")
-    group.observeField("state", m.port)
-    songIDArray = CreateObject("roArray", 0, true)
-
-    ' All we need is an array of Song IDs the user selected to play.
-    for each song in audiodata
-        songIDArray.push(song.id)
-    end for
-
-    group.pageContent = songIDArray
-    group.musicArtistAlbumData = audiodata
-
-    m.global.sceneManager.callFunc("pushScene", group)
-
-    return group
-end function
-
-' Play Instant Mix
-function CreateInstantMixGroup(audiodata)
-
-    songList = CreateInstantMix(audiodata[0].id)
-
-    group = CreateObject("roSGNode", "NowPlaying")
-    group.observeField("state", m.port)
-    songIDArray = CreateObject("roArray", 0, true)
-
-    ' All we need is an array of Song IDs the user selected to play.
-    for each song in songList.items
-        songIDArray.push(song.id)
-    end for
-
-    songIDArray.shift()
-
-    group.pageContent = songIDArray
-    group.musicArtistAlbumData = songList.items
-
-    m.global.sceneManager.callFunc("pushScene", group)
-
-    return group
-end function
-
-' Play Artist
-function CreateArtistMixGroup(artistID)
-
-    songList = CreateArtistMix(artistID)
-
-    group = CreateObject("roSGNode", "NowPlaying")
-    group.observeField("state", m.port)
-    songIDArray = CreateObject("roArray", 0, true)
-
-    ' All we need is an array of Song IDs the user selected to play.
-    for each song in songList.items
-        songIDArray.push(song.id)
-    end for
-
-    group.pageContent = songIDArray
-    group.musicArtistAlbumData = songList.items
-
-    m.global.sceneManager.callFunc("pushScene", group)
-
-    return group
 end function
 
 function CreatePersonView(personData as object) as object
